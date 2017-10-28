@@ -48,7 +48,7 @@ class SlidingBlocksGraph(Graph):
         pass
 
 
-class AStartTests(unittest.TestCase):
+class SlidingBlocksTests(unittest.TestCase):
 
     def test_single_square_solved_board(self):
         self.assertEqual(SlidingBlocksGraph().solve([[0]]), [])
@@ -100,13 +100,13 @@ class AStartTests(unittest.TestCase):
             [0, 7, 8]
         ]), ['left', 'left'])
 
-    def test_complex_example_board(self):
+    def test_complex_board(self):
         # TODO: Think of complex example
         self.assertEqual(SlidingBlocksGraph().solve([
             [1, 2, 3]
         ]), [])
 
-    def test_big_board_complex_example(self):
+    def test_big_complex_board(self):
         # TODO: Think of complex example
         self.assertEqual(SlidingBlocksGraph().solve([
             [1, 2, 3]
