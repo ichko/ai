@@ -1,3 +1,4 @@
+from queue import PriorityQueue as p_queue
 import unittest
 from collections import defaultdict
 
@@ -8,20 +9,21 @@ class Graph:
         pass
 
     def a_star(self, start, end):
+        predecessor = {}
         distance = defaultdict(lambda: float('inf'))
         distance[start] = 0
-        unvisited = set(self.vertices)
-        current = start
+        visited = set()
+        front = p_queue()
+        front.put(0, start)
 
-        while len(self.adjacencies[current]) != 0 and len(unvisited) != 0:
+        while current != end and !front.empty():
+            current = front.get()
             for child, weight in self.get_children(current):
-                distance[child] = min(
-                    distance[child],
-                    distance[current] + weight
-                )
-            unvisited.remove(current)
-            if current == end:
-                return distance[current]
+                if child not in visited:
+                    if distance[child] > distance[current] + weight:
+                        distance[child] = distance[current] + weight
+                        predecessor[child] = current
+                    visited.add(child)
 
 
 class SlidingBlocksGraph(Graph):
