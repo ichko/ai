@@ -6,7 +6,17 @@ from collections import defaultdict
 class Graph:
 
     def get_children(self, vertex):
-        pass
+        raise NotImplementedError()
+
+    def heuristic(self, current, goal):
+        return 0
+
+    @staticmethod
+    def get_path(start, end, predecessor):
+        current = end
+        while current != start:
+            yield current
+            current= predecessor[current]
 
     def a_star(self, start, end):
         predecessor = {}
@@ -16,14 +26,20 @@ class Graph:
         front = p_queue()
         front.put(0, start)
 
-        while current != end and !front.empty():
+        while not front.empty():
             current = front.get()
+            visited.add(current)
+
+            if current == end:
+                return Graph.get_path(start, end, predecessor)
+
             for child, weight in self.get_children(current):
-                if child not in visited:
-                    if distance[child] > distance[current] + weight:
-                        distance[child] = distance[current] + weight
-                        predecessor[child] = current
-                    visited.add(child)
+                new_dist = distance[current] + weight
+                if child not in visited and distance[child] > new_dist:
+                    distance[child] = new_dist
+                    predecessor[child] = current
+                    heuristic = distance[child] + self.heuristic(current, end)
+                    front.put(heuristic, child)
 
 
 class SlidingBlocksGraph(Graph):
