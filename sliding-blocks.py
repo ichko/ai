@@ -48,6 +48,7 @@ class SlidingBlocksGraph(Graph):
         self.start = tuple(tuple(el for el in row) for row in start)
         cols, rows = self.get_board_shape(start)
         self.end = self.get_board_end(cols, rows)
+        self.zero_pos_x, self.zero_pos_y = self.get_zero_pos(self.end)
 
     def solve(self):
         solution_path = self.a_star(self.start, self.end)
@@ -66,14 +67,26 @@ class SlidingBlocksGraph(Graph):
         for src, dst in zip(solution_path, solution_path[1:]):
             yield self.get_move_between_boards(src, dst)
 
-    def get_children(self, vertex):
+    def get_children(self, state):
         pass
 
     def heuristic(self, current, goal):
         pass
 
     def get_move_between_boards(self, src, dst):
-        pass
+        src_zero_x, src_zero_y = self.get_zero_pos(src)
+        dst_zero_x, dst_zero_y = self.get_zero_pos(dst)
+        dx, dy = src_zero_x - dst_zero_x, src_zero_y - dst_zero_y
+        if dy == 1: return 'up'
+        if dy == -1: return 'down'
+        if dx == 1: return 'left'
+        if dx == -1: return 'right'
+
+    def get_zero_pos(self, state):
+        for y_pos in range(len(state)):
+            if 0 in state[y_pos]
+                return start[y_pos].index(0), y_pos
+        return -1, -1
 
 
 class SlidingBlocksTests(unittest.TestCase):
