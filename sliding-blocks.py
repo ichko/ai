@@ -24,7 +24,7 @@ class Graph:
         distance[start] = 0
         visited = set()
         front = p_queue()
-        front.put(0, start)
+        front.put(start, 0)
 
         while not front.empty():
             current = front.get()
@@ -39,7 +39,7 @@ class Graph:
                     distance[child] = new_dist
                     predecessor[child] = current
                     heuristic = distance[child] + self.heuristic(current, end)
-                    front.put(heuristic, child)
+                    front.put(child, heuristic)
 
 
 class SlidingBlocksGraph(Graph):
@@ -47,6 +47,8 @@ class SlidingBlocksGraph(Graph):
     def __init__(self, start):
         self.start = tuple(tuple(el for el in row) for row in start)
         cols, rows = self.get_board_shape(start)
+        self.cols = cols
+        self.rows = rows
         self.end = self.get_board_end(cols, rows)
         self.zero_pos_x, self.zero_pos_y = self.get_zero_pos(self.end)
 
@@ -60,15 +62,31 @@ class SlidingBlocksGraph(Graph):
 
     def get_board_end(self, cols, rows):
         size = cols * rows
-        return tuple(tuple((r * c) % size for c in range(cols))
-                                          for r in range(rows))
+        return tuple(tuple(((r * rows) + c + 1) % size for c in range(cols))
+                                                       for r in range(rows))
 
     def convet_path_to_moves(self, solution_path):
         for src, dst in zip(solution_path, solution_path[1:]):
             yield self.get_move_between_boards(src, dst)
 
     def get_children(self, state):
-        pass
+        result = []
+        x, y = self.get_zero_pos(state)
+
+        if y > 0: result.append(self.swap(state, x, y, x, y - 1))
+        if y < self.rows - 1: result.append(self.swap(state, x, y, x, y + 1))
+        if x > 0: result.append(self.swap(state, x, y, x - 1, y))
+        if x < self.cols - 1: result.append(self.swap(state, x, y, x + 1, y))
+
+        return result
+
+    def swap(self, state, src_x, src_y, dst_x, dst_y):
+        new_state = list(state)
+        tmp = new_state[src_y][src_x];
+        new_state[src_y][src_x] = new_state[dst_x][dst_y]
+        new_state[dst_x][dst_y] = tmp
+
+        return tuple(new_state)
 
     def heuristic(self, current, goal):
         pass
@@ -84,8 +102,8 @@ class SlidingBlocksGraph(Graph):
 
     def get_zero_pos(self, state):
         for y_pos in range(len(state)):
-            if 0 in state[y_pos]
-                return start[y_pos].index(0), y_pos
+            if 0 in state[y_pos]:
+                return state[y_pos].index(0), y_pos
         return -1, -1
 
 
