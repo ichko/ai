@@ -81,12 +81,12 @@ class SlidingBlocksGraph(Graph):
         return result
 
     def swap(self, state, src_x, src_y, dst_x, dst_y):
-        new_state = list(state)
+        new_state = [[el for el in row] for row in state]
         tmp = new_state[src_y][src_x];
         new_state[src_y][src_x] = new_state[dst_x][dst_y]
         new_state[dst_x][dst_y] = tmp
 
-        return tuple(new_state)
+        return tuple(tuple(el for el in row) for row in new_state), 1
 
     def heuristic(self, current, goal):
         pass
