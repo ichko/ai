@@ -13,10 +13,12 @@ class Graph:
 
     @staticmethod
     def get_path(start, end, predecessor):
-        current = end
-        while current != start:
-            yield current
-            current = predecessor[current]
+        result = []
+        while end != start:
+            result.append(end)
+            end = predecessor[end]
+
+        return [start] + result[::-1]
 
     def a_star(self, start, end):
         predecessor = {}
@@ -68,6 +70,7 @@ class SlidingBlocksGraph(Graph):
                                                        for r in range(rows))
 
     def convet_path_to_moves(self, solution_path):
+        print(solution_path)
         for src, dst in zip(solution_path, solution_path[1:]):
             yield self.get_move_between_boards(src, dst)
 
@@ -97,10 +100,10 @@ class SlidingBlocksGraph(Graph):
         src_zero_x, src_zero_y = self.get_zero_pos(src)
         dst_zero_x, dst_zero_y = self.get_zero_pos(dst)
         dx, dy = src_zero_x - dst_zero_x, src_zero_y - dst_zero_y
-        if dy == 1: return 'up'
-        if dy == -1: return 'down'
-        if dx == 1: return 'left'
-        if dx == -1: return 'right'
+        if dx == -1: return 'left'
+        if dx == 1: return 'right'
+        if dy == -1: return 'up'
+        if dy == 1: return 'down'
 
     def get_zero_pos(self, state):
         for y_pos in range(len(state)):
