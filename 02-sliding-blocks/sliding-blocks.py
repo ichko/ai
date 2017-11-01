@@ -70,7 +70,6 @@ class SlidingBlocksGraph(Graph):
                                                        for r in range(rows))
 
     def convet_path_to_moves(self, solution_path):
-        print(solution_path)
         for src, dst in zip(solution_path, solution_path[1:]):
             yield self.get_move_between_boards(src, dst)
 
