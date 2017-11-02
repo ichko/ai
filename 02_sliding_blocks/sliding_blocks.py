@@ -4,7 +4,7 @@ from collections import defaultdict
 
 class Graph:
 
-    def get_neighbor(self, vertex):
+    def get_neighbors(self, vertex):
         raise NotImplementedError()
 
     def heuristic(self, current, goal):
@@ -38,21 +38,21 @@ class Graph:
             if current == end:
                 return Graph.get_path(start, end, predecessor)
 
-            for child, weight in self.get_neighbor(current):
-                if child not in visited:
+            for neighbor, weight in self.get_neighbors(current):
+                if neighbor not in visited:
                     new_dist = distance[current] + weight
                     heuristic = new_dist + self.heuristic(current, end)
 
-                    if child not in front:
-                        front.add(child)
-                        if distance[child] > new_dist:
-                            score.put(child, heuristic)
+                    if neighbor not in front:
+                        front.add(neighbor)
+                        if distance[neighbor] > new_dist:
+                            score.put(neighbor, heuristic)
                         else:
-                            score.put(child, float('inf'))
+                            score.put(neighbor, float('inf'))
 
-                    if distance[child] > new_dist:
-                        distance[child] = new_dist
-                        predecessor[child] = current
+                    if distance[neighbor] > new_dist:
+                        distance[neighbor] = new_dist
+                        predecessor[neighbor] = current
 
         return []
 
@@ -85,7 +85,7 @@ class SlidingBlocksGraph(Graph):
         for src, dst in zip(solution_path, solution_path[1:]):
             yield self.get_move_between_boards(src, dst)
 
-    def get_children(self, state):
+    def get_neighbors(self, state):
         result = []
         x, y = self.get_elem_pos(state)
 
