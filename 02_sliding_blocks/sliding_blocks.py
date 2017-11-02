@@ -33,21 +33,32 @@ class Graph:
         distance = defaultdict(lambda: float('inf'))
         distance[start] = 0
         visited = set()
-        front = p_queue()
-        front.put(start, 0)
 
-        while not front.empty():
-            current = front.get()
+        front = set()
+        front.add(start)
+        score = p_queue()
+        score.put(start, 0)
+
+        while not not front:
+            current = score.get()
+            front.remove(current)
             visited.add(current)
 
             if current == end:
                 return Graph.get_path(start, end, predecessor)
 
             for child, weight in self.get_children(current):
-                new_dist = distance[current] + weight
                 if child not in visited:
-                    heuristic = distance[child] + self.heuristic(current, end)
-                    front.put(child, heuristic)
+                    new_dist = distance[current] + weight
+                    heuristic = new_dist + self.heuristic(current, end)
+
+                    if child not in front:
+                        front.add(child)
+                        if distance[child] > new_dist:
+                            score.put(child, heuristic)
+                        else:
+                            score.put(child, float('inf'))
+
                     if distance[child] > new_dist:
                         distance[child] = new_dist
                         predecessor[child] = current
