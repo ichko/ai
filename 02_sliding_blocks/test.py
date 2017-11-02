@@ -83,6 +83,16 @@ class SlidingBlocksTests(unittest.TestCase):
             [9, 13, 14, 15]
         ]).solve(), ['up', 'up', 'left', 'left', 'left'])
 
+    def test_big_slow_to_compute_board(self):
+        # TODO
+        # self.assertEqual(SlidingBlocksGraph([
+        #     [1,  9,  4,  3 ],
+        #     [6,  0,  15, 14],
+        #     [11, 12, 7,  5 ],
+        #     [2,  13, 8,  10]
+        # ]).solve(), ['up', 'up', 'left', 'left', 'left'])
+        pass
+
 
 if __name__ == '__main__':
     unittest.main()
