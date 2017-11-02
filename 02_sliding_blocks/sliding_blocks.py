@@ -91,7 +91,8 @@ class SlidingBlocksGraph(Graph):
         new_state[src_y][src_x] = new_state[dst_y][dst_x]
         new_state[dst_y][dst_x] = tmp
 
-        return tuple(tuple(el for el in row) for row in new_state), 1
+        return tuple(tuple(el for el in row) for row in new_state), \
+            1 # cost of child
 
     def heuristic(self, current, goal):
         total = 0
