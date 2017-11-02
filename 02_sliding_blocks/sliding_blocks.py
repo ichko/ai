@@ -1,6 +1,14 @@
 from queue import PriorityQueue as p_queue
 from collections import defaultdict
-import os
+import heapq as hq
+
+
+class UpdateablePriorityQueue:
+    def __init__(self):
+        self.data = []
+
+    def put(self, val, key):
+        hq.heappush(self.data)
 
 
 class Graph:
@@ -37,11 +45,12 @@ class Graph:
 
             for child, weight in self.get_children(current):
                 new_dist = distance[current] + weight
-                if child not in visited and distance[child] > new_dist:
-                    distance[child] = new_dist
-                    predecessor[child] = current
+                if child not in visited:
                     heuristic = distance[child] + self.heuristic(current, end)
                     front.put(child, heuristic)
+                    if distance[child] > new_dist:
+                        distance[child] = new_dist
+                        predecessor[child] = current
 
         return []
 

@@ -54,13 +54,26 @@ class SlidingBlocksTests(unittest.TestCase):
             [0, 7, 8]
         ]).solve(), ['left', 'left'])
 
-    def test_complex_board(self):
+    def test_simple_board(self):
         self.assertEqual(SlidingBlocksGraph([
             [2, 3, 6],
             [1, 5, 8],
-            [4, 7, 0]
-        ]).solve(), ['down', 'down', 'right', 'right',
-                     'up', 'up', 'left', 'left'])
+            [4, 0, 7]
+        ]).solve(), [])
+
+    def test_complex_board(self):
+        self.assertEqual(SlidingBlocksGraph([
+            [2, 0, 7],
+            [5, 3, 6],
+            [1, 4, 8]
+        ]).solve(), [])
+
+    def test_slow_to_solve_board(self):
+        self.assertEqual(SlidingBlocksGraph([
+            [3, 8, 4],
+            [5, 2, 1],
+            [7, 0, 6]
+        ]).solve(), [])
 
     def test_big_complex_board(self):
         self.assertEqual(SlidingBlocksGraph([
