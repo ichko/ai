@@ -1,19 +1,10 @@
 from queue import PriorityQueue as p_queue
 from collections import defaultdict
-import heapq as hq
-
-
-class UpdateablePriorityQueue:
-    def __init__(self):
-        self.data = []
-
-    def put(self, val, key):
-        hq.heappush(self.data)
 
 
 class Graph:
 
-    def get_children(self, vertex):
+    def get_neighbor(self, vertex):
         raise NotImplementedError()
 
     def heuristic(self, current, goal):
@@ -39,7 +30,7 @@ class Graph:
         score = p_queue()
         score.put(start, 0)
 
-        while not not front:
+        while len(front) > 0:
             current = score.get()
             front.remove(current)
             visited.add(current)
@@ -47,7 +38,7 @@ class Graph:
             if current == end:
                 return Graph.get_path(start, end, predecessor)
 
-            for child, weight in self.get_children(current):
+            for child, weight in self.get_neighbor(current):
                 if child not in visited:
                     new_dist = distance[current] + weight
                     heuristic = new_dist + self.heuristic(current, end)
