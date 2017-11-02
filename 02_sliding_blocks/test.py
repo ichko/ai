@@ -1,6 +1,7 @@
 import unittest
 from sliding_blocks import SlidingBlocksGraph
 
+
 class SlidingBlocksTests(unittest.TestCase):
 
     def test_single_square_solved_board(self):

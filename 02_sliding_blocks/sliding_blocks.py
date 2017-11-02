@@ -64,8 +64,8 @@ class SlidingBlocksGraph(Graph):
         return len(board[0]), len(board)
 
     def get_board_end(self, cols, rows):
-        size = cols * rows
-        return tuple(tuple(((r * rows) + c + 1) % size for c in range(cols))
+        size, counter = cols * rows, 1
+        return tuple(tuple(((r * cols) + c + 1) % size for c in range(cols))
                                                        for r in range(rows))
 
     def convet_path_to_moves(self, solution_path):
@@ -108,3 +108,25 @@ class SlidingBlocksGraph(Graph):
             if 0 in state[y_pos]:
                 return state[y_pos].index(0), y_pos
         return -1, -1
+
+
+def input_board(size):
+    board = [[]]
+    for _ in range(size):
+        row_id = len(board) - 1
+        for _ in range(size):
+            cell = int(input())
+            board[row_id].append(cell)
+        board.append([])
+    board.pop()
+
+    return board
+
+
+if __name__ == '__main__':
+    size = int(input())
+    board = input_board(size)
+    print(board)
+    solution = SlidingBlocksGraph(board).solve()
+
+    print('\n'.join(solution))
