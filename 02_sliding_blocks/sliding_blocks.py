@@ -1,5 +1,6 @@
 from queue import PriorityQueue as p_queue
 from collections import defaultdict
+import os
 
 
 class Graph:
@@ -54,10 +55,11 @@ class SlidingBlocksGraph(Graph):
         self.rows = rows
         self.end = self.get_board_end(cols, rows)
         self.zero_pos_x, self.zero_pos_y = self.get_elem_pos(self.end)
+        self.solution_path = []
 
     def solve(self):
-        solution_path = list(self.a_star(self.start, self.end))
-        solution = self.convet_path_to_moves(solution_path)
+        self.solution_path = list(self.a_star(self.start, self.end))
+        solution = self.convet_path_to_moves(self.solution_path)
         return list(solution)
 
     def get_board_shape(self, board):
@@ -120,7 +122,6 @@ class SlidingBlocksGraph(Graph):
 def input_board(size):
     return [list(map(lambda n: int(n), input().split(' ')))
             for _ in range(size)]
-
 
 if __name__ == '__main__':
     size = int(input())
