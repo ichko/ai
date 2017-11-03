@@ -1,72 +1,6 @@
-from collections import defaultdict
-import heapq
+from search_space import SearchSpace
 
-
-class PriorityQueue:
-    def __init__(self):
-        self.elements = []
-
-    def empty(self):
-        return len(self.elements) == 0
-    
-    def put(self, item, priority):
-        heapq.heappush(self.elements, (priority, item))
-
-    def get(self):
-        return heapq.heappop(self.elements)[1]
-
-
-class Graph:
-
-    def get_neighbors(self, vertex):
-        raise NotImplementedError()
-
-    def heuristic(self, current, goal):
-        return 0
-
-    @staticmethod
-    def get_path(start, end, predecessor):
-        result = []
-        while end != start:
-            result.append(end)
-            end = predecessor[end]
-
-        return [start] + result[::-1]
-
-    def a_star(self, start, end):
-        predecessor = {}
-        distance = defaultdict(lambda: float('inf'))
-        distance[start] = 0
-        visited = set()
-
-        front = set()
-        front.add(start)
-        score = PriorityQueue()
-        score.put(start, 0)
-
-        while len(front) > 0:
-            current = score.get()
-            front.remove(current)
-            visited.add(current)
-
-            if current == end:
-                return Graph.get_path(start, end, predecessor)
-
-            for neighbor, weight in self.get_neighbors(current):
-                if neighbor not in visited:
-                    new_dist = distance[current] + weight
-                    heuristic = new_dist + self.heuristic(current, end)
-
-                    if distance[neighbor] > new_dist and neighbor not in front:
-                        distance[neighbor] = new_dist
-                        predecessor[neighbor] = current
-                        front.add(neighbor)
-                        score.put(neighbor, heuristic)
-
-        return []
-
-
-class SlidingBlocksGraph(Graph):
+class SlidingBlocks(SearchSpace):
 
     def __init__(self, start):
         self.start = tuple(tuple(el for el in row) for row in start)
@@ -147,6 +81,6 @@ def input_board(size):
 if __name__ == '__main__':
     size = int(input())
     board = input_board(size)
-    solution = SlidingBlocksGraph(board).solve()
+    solution = SlidingBlocks(board).solve()
 
     print('\n'.join(solution))
