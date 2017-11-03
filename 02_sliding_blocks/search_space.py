@@ -3,17 +3,25 @@ import heapq as hq
 
 
 class PriorityQueue:
+
     def __init__(self):
-        self.data = []
+        self.heap = []
+        self.data = set()
 
     def empty(self):
-        return len(self.data) == 0
+        return len(self.heap) == 0
     
     def put(self, item, priority):
-        hq.heappush(self.data, (priority, item))
+        hq.heappush(self.heap, (priority, item))
+        self.data.add(item)
 
     def get(self):
-        return hq.heappop(self.data)[1]
+        element = hq.heappop(self.heap)[1]
+        self.data.remove(element)
+        return element
+
+    def __contains__(self, element):
+        return element in self.data
 
 
 class SearchSpace:
@@ -37,15 +45,11 @@ class SearchSpace:
         distance = defaultdict(lambda: float('inf'))
         distance[start] = 0
         visited = set()
+        front = PriorityQueue()
+        front.put(start, 0)
 
-        front = set()
-        front.add(start)
-        score = PriorityQueue()
-        score.put(start, 0)
-
-        while len(front) > 0:
-            current = score.get()
-            front.remove(current)
+        while not front.empty():
+            current = front.get()
             visited.add(current)
 
             if current == end:
@@ -57,8 +61,7 @@ class SearchSpace:
                     heuristic = new_dist + self.heuristic(current, end)
 
                     if neighbor not in front:
-                        front.add(neighbor)
-                        score.put(neighbor, heuristic)
+                        front.put(neighbor, heuristic)
 
                     if distance[neighbor] > new_dist:
                         distance[neighbor] = new_dist
