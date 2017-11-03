@@ -1,6 +1,7 @@
-from search_space import SearchSpace
+from graph import Graph
 
-class SlidingBlocks(SearchSpace):
+
+class SlidingBlocks(Graph):
 
     def __init__(self, start):
         self.start = tuple(tuple(el for el in row) for row in start)

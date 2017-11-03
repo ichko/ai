@@ -24,7 +24,7 @@ class PriorityQueue:
         return element in self.data
 
 
-class SearchSpace:
+class Graph:
 
     def get_neighbors(self, vertex):
         raise NotImplementedError()
