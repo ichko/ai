@@ -1,5 +1,19 @@
-from queue import PriorityQueue as p_queue
 from collections import defaultdict
+import heapq
+
+
+class PriorityQueue:
+    def __init__(self):
+        self.elements = []
+
+    def empty(self):
+        return len(self.elements) == 0
+    
+    def put(self, item, priority):
+        heapq.heappush(self.elements, (priority, item))
+
+    def get(self):
+        return heapq.heappop(self.elements)[1]
 
 
 class Graph:
@@ -27,7 +41,7 @@ class Graph:
 
         front = set()
         front.add(start)
-        score = p_queue()
+        score = PriorityQueue()
         score.put(start, 0)
 
         while len(front) > 0:
@@ -43,16 +57,11 @@ class Graph:
                     new_dist = distance[current] + weight
                     heuristic = new_dist + self.heuristic(current, end)
 
-                    if neighbor not in front:
-                        front.add(neighbor)
-                        if distance[neighbor] > new_dist:
-                            score.put(neighbor, heuristic)
-                        else:
-                            score.put(neighbor, float('inf'))
-
-                    if distance[neighbor] > new_dist:
+                    if distance[neighbor] > new_dist and neighbor not in front:
                         distance[neighbor] = new_dist
                         predecessor[neighbor] = current
+                        front.add(neighbor)
+                        score.put(neighbor, heuristic)
 
         return []
 
@@ -77,7 +86,7 @@ class SlidingBlocksGraph(Graph):
         return len(board[0]), len(board)
 
     def get_board_end(self, cols, rows):
-        size, counter = cols * rows, 1
+        size = cols * rows
         return tuple(tuple(((r * cols) + c + 1) % size for c in range(cols))
                                                        for r in range(rows))
 
@@ -113,7 +122,7 @@ class SlidingBlocksGraph(Graph):
             x_goal, y_goal = self.get_elem_pos(goal, elem + 1)
             total = total + abs(x_cur - x_goal) + abs(y_cur - y_goal)
 
-        return 0
+        return total
 
     def get_move_between_boards(self, src, dst):
         src_zero_x, src_zero_y = self.get_elem_pos(src)
