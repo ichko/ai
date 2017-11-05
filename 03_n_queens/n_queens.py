@@ -4,110 +4,161 @@ import random
 
 
 def argmin(arr):
-    min_id = 0
-    for id, el in enumerate(arr):
-        if arr[min_id]> el: min_id = id
-    return min_id
+    min_el = min(arr)
+    return set(id for id, el in enumerate(arr) if el == min_el)
 
 def argmax(arr):
     max_id = 0
     for id, el in enumerate(arr):
-        if arr[max_id]> el: max_id = id
+        if arr[max_id] < el: max_id = id
     return max_id
 
 
 class Column:
 
-    def __init__(self, problem_size, x_position):
+    def __init__(self, problem_size, x_pos):
         self.problem_size = problem_size
-        self.x_position = x_position
-        self.queen_position = random.randrange(0, problem_size)
+        self.x_pos = x_pos
+        self.y_pos = random.randrange(0, problem_size)
         self.conflicts = [0 for _ in range(problem_size)]
 
-    def get_max_conflict(self):
-        return max(self.conflicts)
+    def get_queen_conflict(self):
+        return self.conflicts[self.y_pos]
 
     def is_solved(self):
-        return self.conflicts[self.queen_position] == 0
+        return self.get_queen_conflict() <= 1
 
     def relocate_queen(self):
-        min_id = argmin(self.conflicts)
-        old_queen_position = self.queen_position
-        self.queen_position = min_id
-        return min_id != old_queen_position
+        min_ids = argmin(self.conflicts)
+        if self.y_pos in min_ids:
+            min_ids.remove(self.y_pos)
+
+        if len(min_ids) == 0:
+            return False
+        else:
+            self.y_pos = random.randrange(0, len(tuple(min_ids)))
+            return True
 
     def update_conflict(self, y, value=1):
         self.conflicts[y] += value
 
     def get_conflicting_cells(self):
-        result = set((x, self.queen_position)
-                     for x in range(self.problem_size)
-                     if x != self.x_position)
+        result = set((x, self.y_pos) for x in range(self.problem_size))
+        result.update((self.x_pos, y) for y in range(self.problem_size))
+
+        min_coord, max_coord = min(self.x_pos, self.y_pos), \
+                               max(self.x_pos, self.y_pos)
+        min_inv, max_inv = min(self.problem_size - self.x_pos - 1, self.y_pos), \
+                           max(self.problem_size - self.x_pos - 1, self.y_pos)
+
+        x_base, y_base = self.x_pos - min_coord, self.y_pos - min_coord
+        x_inv, y_inv = self.x_pos + min_inv, self.y_pos - min_inv
+
+        result.update((x_base + i, y_base + i)
+            for i in range(self.problem_size - (max_coord - min_coord)))
+        result.update((x_inv - i, y_inv + i)
+            for i in range(self.problem_size - (max_inv - min_inv)))
 
         return result
+
+    def print_conflicts(self):
+        conflicts = self.get_conflicting_cells()
+        for y in range(self.problem_size):
+            row = ''
+            for x in range(self.problem_size):
+                if x == self.x_pos and y == self.y_pos: row += 'Q '
+                elif (x, y) in conflicts: row += '# '
+                else: row += '- '
+            print(row)
 
 
 class NQueen:
 
     def __init__(self, problem_size):
         self.problem_size = problem_size
-        self.board = [Column(problem_size, x)
-                      for x in range(problem_size)]
-        self.set_initial_conflicts()
+        self._init_board()
 
-    def is_solved(self):
+    def _init_board(self):
+        self.board = [Column(self.problem_size, x)
+                      for x in range(self.problem_size)]
+        self._set_initial_conflicts()
+
+    def _is_solved(self):
         return all(c.is_solved() for c in self.board)
 
-    def solve(self, max_iter=100000):
-        while max_iter > 0:
-            if not self.is_solved():
-                max_iter -= 1
-                x = max_iter % self.problem_size
+    def solve(self, max_iter=10000):
+        current_iter = max_iter
+        while current_iter > 0:
+            if not self._is_solved():
+                # self.print_conflicts()
+                # print('-----------')
+
+                current_iter -= 1
+                # x = current_iter % self.problem_size
+                # x = random.randrange(0, self.problem_size)
+                x = self._get_max_conflicting_cell_id()
+
                 old_conflicts = self.board[x].get_conflicting_cells()
                 if self.board[x].relocate_queen():
                     new_conflicts = self.board[x].get_conflicting_cells()
-                    self.update_conflicts(old_conflicts, new_conflicts)
+                    self._update_conflicts(old_conflicts, new_conflicts)
+                else:
+                    self._init_board()
+                    max_iter //= 2
+                    current_iter = max_iter
             else:
-                return self.construct_solution()
-        # return self.construct_solution()
-        raise Exception('solution not found')
+                return self._construct_solution()
+        print('NO SOLUTION')
+        return self._construct_solution()
+        # raise Exception('solution not found')
 
-    def get_max_conflicting_cell_id(self):
-        return argmax([c.get_max_conflict() for c in self.board])
+    def _get_max_conflicting_cell_id(self):
+        return argmax([c.get_queen_conflict() for c in self.board])
 
-    def construct_solution(self):
-        return set((x, col.queen_position)
+    def _construct_solution(self):
+        return set((x, col.y_pos)
                    for x, col in enumerate(self.board))
 
-    def update_conflicts(self, old_conflicts, new_conflicts):
+    def _update_conflicts(self, old_conflicts, new_conflicts):
         for x, y in old_conflicts:
             self.board[x].update_conflict(y, -1)
         for x, y in new_conflicts:
             self.board[x].update_conflict(y, 1)
 
-    def set_initial_conflicts(self):
+    def _set_initial_conflicts(self):
         for col in self.board:
             conflicting_cells = col.get_conflicting_cells()
             for x, y in conflicting_cells:
                 self.board[x].update_conflict(y, 1)
 
+    def print_conflicts(self):
+        for y in range(self.problem_size):
+            for x in range(self.problem_size):
+                min_conf = min(self.board[x].conflicts)
+                conflict = self.board[x].conflicts[y]
+                star = '  ' if conflict != min_conf else '* '
+                if self.board[x].y_pos == y:
+                    print(str(conflict) + '<', end='')
+                else:
+                    print(str(conflict) + ' ', end='')
+                print(star, end='')
+            print()
 
-
-def print_solution(solution):
-    problem_size = len(solution)
-    for y in range(problem_size):
-        for x in range(problem_size):
-            print('Q' if (x, y) in solution else '-', end='')
-        print()
+    def print_board(self):
+        for y in range(self.problem_size):
+            for x in range(self.problem_size):
+                print('Q ' if self.board[x].y_pos == y else '- ', end='')
+            print()
 
 
 if __name__ == '__main__':
-    problem_size = int(input())
+    # problem_size = int(input())
+    problem_size = 6
     game = NQueen(problem_size)
 
     start_time = t.default_timer()
     solution = game.solve()
     elapsed = t.default_timer() - start_time
 
-    print_solution(solution)
+    game.print_board()
     print('TIME: %.6f' % elapsed)
