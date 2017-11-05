@@ -41,7 +41,7 @@ class NQueen:
         self.problem_size = problem_size
         self.board = [Column(problem_size)
                       for _ in range(problem_size)]
-        self.set_inital_conflicts()
+        self.set_initial_conflicts()
 
     def is_solved(self):
         return all(c.is_solved() for c in self.board)
@@ -69,7 +69,7 @@ class NQueen:
         for x, y in new_conflicts:
             self.board[x].update_conflict(y, 1)
 
-    def set_inital_conflicts(self):
+    def set_initial_conflicts(self):
         for col in self.board:
             conflicting_cells = col.get_conflicting_cells()
             for x, y in conflicting_cells:
@@ -85,7 +85,8 @@ def print_solution(solution, problem_size):
 
 
 if __name__ == '__main__':
-    problem_size = int(input())
+    # problem_size = int(input())
+    problem_size = 5
     game = NQueen(problem_size)
     solution = game.solve()
     print_solution(solution, problem_size)
