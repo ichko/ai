@@ -1,4 +1,5 @@
 from collections import defaultdict
+import timeit as t
 import random
 
 
@@ -11,8 +12,9 @@ def argmin(arr):
 
 class Column:
 
-    def __init__(self, problem_size):
+    def __init__(self, problem_size, x_position):
         self.problem_size = problem_size
+        self.x_position = x_position
         self.queen_position = 1
         self.conflicts = [0 for _ in range(problem_size)]
 
@@ -30,7 +32,8 @@ class Column:
 
     def get_conflicting_cells(self):
         result = [(x, self.queen_position)
-                  for x in range(self.problem_size)]
+                  for x in range(self.problem_size)
+                  if x != self.x_position]
 
         return result
 
@@ -39,14 +42,14 @@ class NQueen:
 
     def __init__(self, problem_size):
         self.problem_size = problem_size
-        self.board = [Column(problem_size)
-                      for _ in range(problem_size)]
+        self.board = [Column(problem_size, x)
+                      for x in range(problem_size)]
         self.set_initial_conflicts()
 
     def is_solved(self):
         return all(c.is_solved() for c in self.board)
 
-    def solve(self, max_iter=1000):
+    def solve(self, max_iter=10000):
         while max_iter > 0:
             if not self.is_solved():
                 max_iter -= 1
@@ -57,7 +60,8 @@ class NQueen:
                     self.update_conflicts(old_conflicts, new_conflicts)
             else:
                 return self.construct_solution()
-        return self.construct_solution()
+        # return self.construct_solution()
+        raise Exception('solution not found')
 
     def construct_solution(self):
         return set((x, col.queen_position)
@@ -85,8 +89,12 @@ def print_solution(solution, problem_size):
 
 
 if __name__ == '__main__':
-    # problem_size = int(input())
-    problem_size = 5
+    problem_size = int(input())
     game = NQueen(problem_size)
+
+    start_time = t.default_timer()
     solution = game.solve()
+    elapsed = t.default_timer() - start_time
+
     print_solution(solution, problem_size)
+    print('TIME: %.6f' % elapsed)
