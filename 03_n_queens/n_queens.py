@@ -77,7 +77,7 @@ class NQueen:
         return all(c.is_solved() for c in self.board)
 
     def solve(self):
-        max_iter = self.problem_size * 2.5
+        max_iter = int(self.problem_size)
         current_iter = max_iter
         while True:
             if current_iter <= 0:
@@ -85,9 +85,6 @@ class NQueen:
                 current_iter = max_iter
 
             if not self._is_solved():
-                # self.print_conflicts()
-                # print('-----------')
-
                 current_iter -= 1
                 # x = current_iter % self.problem_size
                 # x = random.randrange(0, self.problem_size)
@@ -99,9 +96,7 @@ class NQueen:
                 self._update_conflicts(old_conflicts, new_conflicts)
             else:
                 return self._construct_solution()
-        print('NO SOLUTION')
-        return self._construct_solution()
-        # raise Exception('solution not found')
+        raise Exception('no solution found')
 
     def _get_max_conflicting_cell_id(self):
         return arg_max([c.get_queen_conflict() for c in self.board])
@@ -143,13 +138,12 @@ class NQueen:
 
 
 if __name__ == '__main__':
-    # problem_size = int(input())
-    problem_size = 10000
+    problem_size = int(input())
     game = NQueen(problem_size)
 
     start_time = t.default_timer()
     solution = game.solve()
     elapsed = t.default_timer() - start_time
 
-    # game.print_board()
+    game.print_board()
     print('TIME: %.6f' % elapsed)
