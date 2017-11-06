@@ -3,16 +3,14 @@ import timeit as t
 import random
 
 
-def argmin(arr):
-    min_el = min(arr)
-    return set(id for id, el in enumerate(arr) if el == min_el)
+def arg_random_el(arr, el):
+    return random.choice([id for id, val in enumerate(arr) if val == el])
 
-def argmax(arr):
-    max_id = 0
-    for id, el in enumerate(arr):
-        if arr[max_id] < el: max_id = id
-    return max_id
+def arg_min(arr):
+    return arg_random_el(arr, min(arr))
 
+def arg_max(arr):
+    return arg_random_el(arr, max(arr))
 
 class Column:
 
@@ -29,15 +27,7 @@ class Column:
         return self.get_queen_conflict() <= 1
 
     def relocate_queen(self):
-        min_ids = argmin(self.conflicts)
-        if self.y_pos in min_ids:
-            min_ids.remove(self.y_pos)
-
-        if len(min_ids) == 0:
-            return False
-        else:
-            self.y_pos = random.randrange(0, len(tuple(min_ids)))
-            return True
+        self.y_pos = arg_min(self.conflicts)
 
     def update_conflict(self, y, value=1):
         self.conflicts[y] += value
@@ -86,9 +76,14 @@ class NQueen:
     def _is_solved(self):
         return all(c.is_solved() for c in self.board)
 
-    def solve(self, max_iter=10000):
+    def solve(self):
+        max_iter = self.problem_size * 2.5
         current_iter = max_iter
-        while current_iter > 0:
+        while True:
+            if current_iter <= 0:
+                self._init_board()
+                current_iter = max_iter
+
             if not self._is_solved():
                 # self.print_conflicts()
                 # print('-----------')
@@ -99,21 +94,15 @@ class NQueen:
                 x = self._get_max_conflicting_cell_id()
 
                 old_conflicts = self.board[x].get_conflicting_cells()
-                if self.board[x].relocate_queen():
-                    new_conflicts = self.board[x].get_conflicting_cells()
-                    self._update_conflicts(old_conflicts, new_conflicts)
-                else:
-                    self._init_board()
-                    max_iter //= 2
-                    current_iter = max_iter
-            else:
-                return self._construct_solution()
+                self.board[x].relocate_queen()
+                new_conflicts = self.board[x].get_conflicting_cells()
+                self._update_conflicts(old_conflicts, new_conflicts)
         print('NO SOLUTION')
         return self._construct_solution()
         # raise Exception('solution not found')
 
     def _get_max_conflicting_cell_id(self):
-        return argmax([c.get_queen_conflict() for c in self.board])
+        return arg_max([c.get_queen_conflict() for c in self.board])
 
     def _construct_solution(self):
         return set((x, col.y_pos)
