@@ -12,6 +12,7 @@ def arg_min(arr):
 def arg_max(arr):
     return arg_random_el(arr, max(arr))
 
+
 class Column:
 
     def __init__(self, problem_size, x_pos):
@@ -62,7 +63,7 @@ class Column:
             print(row)
 
 
-class NQueen:
+class NQueens:
 
     def __init__(self, problem_size):
         self.problem_size = problem_size
@@ -73,7 +74,7 @@ class NQueen:
                       for x in range(self.problem_size)]
         self._set_initial_conflicts()
 
-    def _is_solved(self):
+    def is_solved(self):
         return all(c.is_solved() for c in self.board)
 
     def solve(self):
@@ -84,7 +85,7 @@ class NQueen:
                 self._init_board()
                 current_iter = max_iter
 
-            if not self._is_solved():
+            if not self.is_solved():
                 current_iter -= 1
                 # x = current_iter % self.problem_size
                 # x = random.randrange(0, self.problem_size)
@@ -95,15 +96,11 @@ class NQueen:
                 new_conflicts = self.board[x].get_conflicting_cells()
                 self._update_conflicts(old_conflicts, new_conflicts)
             else:
-                return self._construct_solution()
+                return self
         raise Exception('no solution found')
 
     def _get_max_conflicting_cell_id(self):
         return arg_max([c.get_queen_conflict() for c in self.board])
-
-    def _construct_solution(self):
-        return set((x, col.y_pos)
-                   for x, col in enumerate(self.board))
 
     def _update_conflicts(self, old_conflicts, new_conflicts):
         for x, y in old_conflicts:
@@ -137,9 +134,15 @@ class NQueen:
             print()
 
 
+def solve_n_queens(problem_size):
+    return NQueens(problem_size).solve()
+
+def verify_solution(solution):
+    return solution.is_solved()
+
 if __name__ == '__main__':
     problem_size = int(input())
-    game = NQueen(problem_size)
+    game = NQueens(problem_size)
 
     start_time = t.default_timer()
     solution = game.solve()
