@@ -97,6 +97,8 @@ class NQueen:
                 self.board[x].relocate_queen()
                 new_conflicts = self.board[x].get_conflicting_cells()
                 self._update_conflicts(old_conflicts, new_conflicts)
+            else:
+                return self._construct_solution()
         print('NO SOLUTION')
         return self._construct_solution()
         # raise Exception('solution not found')
@@ -142,12 +144,12 @@ class NQueen:
 
 if __name__ == '__main__':
     # problem_size = int(input())
-    problem_size = 6
+    problem_size = 10000
     game = NQueen(problem_size)
 
     start_time = t.default_timer()
     solution = game.solve()
     elapsed = t.default_timer() - start_time
 
-    game.print_board()
+    # game.print_board()
     print('TIME: %.6f' % elapsed)
