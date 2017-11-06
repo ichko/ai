@@ -3,6 +3,13 @@ import timeit as t
 import random
 
 
+def solve_n_queens(problem_size):
+    return NQueens(problem_size).solve()
+
+def verify_solution(solution):
+    return solution.is_solved()
+
+
 def arg_random_el(arr, el):
     return random.choice([id for id, val in enumerate(arr) if val == el])
 
@@ -133,12 +140,6 @@ class NQueens:
                 print('Q ' if self.board[x].y_pos == y else '- ', end='')
             print()
 
-
-def solve_n_queens(problem_size):
-    return NQueens(problem_size).solve()
-
-def verify_solution(solution):
-    return solution.is_solved()
 
 if __name__ == '__main__':
     problem_size = int(input())
