@@ -46,8 +46,10 @@ class Column:
 
         min_coord, max_coord = min(self.x_pos, self.y_pos), \
                                max(self.x_pos, self.y_pos)
-        min_inv, max_inv = min(self.problem_size - self.x_pos - 1, self.y_pos), \
-                           max(self.problem_size - self.x_pos - 1, self.y_pos)
+        min_inv, max_inv = min(self.problem_size - self.x_pos - 1,
+                               self.y_pos), \
+                           max(self.problem_size - self.x_pos - 1,
+                               self.y_pos)
 
         x_base, y_base = self.x_pos - min_coord, self.y_pos - min_coord
         x_inv, y_inv = self.x_pos + min_inv, self.y_pos - min_inv
@@ -80,6 +82,16 @@ class NQueens:
         self.board = [Column(self.problem_size, x)
                       for x in range(self.problem_size)]
         self._set_initial_conflicts()
+        # self.board = []
+        # conflicting_cells = set()
+        # for x in range(self.problem_size):
+        #     col = Column(self.problem_size, x)
+        #     conflicting_cells.update(col.get_conflicting_cells())
+        #     for col_x, y in conflicting_cells:
+        #         if x == col_x:
+        #             col.update_conflict(y, 1)
+        #     col.relocate_queen()
+        #     self.board.append(col)
 
     def is_solved(self):
         return all(c.is_solved() for c in self.board)
@@ -126,28 +138,27 @@ class NQueens:
             for x in range(self.problem_size):
                 min_conf = min(self.board[x].conflicts)
                 conflict = self.board[x].conflicts[y]
-                star = '  ' if conflict != min_conf else '* '
+                is_min = '  ' if conflict != min_conf else '* '
                 if self.board[x].y_pos == y:
                     print(str(conflict) + '<', end='')
                 else:
                     print(str(conflict) + ' ', end='')
-                print(star, end='')
+                print(is_min, end='')
             print()
 
     def print_board(self):
         for y in range(self.problem_size):
             for x in range(self.problem_size):
-                print('Q ' if self.board[x].y_pos == y else '- ', end='')
+                print('Q' if self.board[x].y_pos == y else '-', end=' ')
             print()
 
 
 if __name__ == '__main__':
     problem_size = int(input())
-    game = NQueens(problem_size)
 
     start_time = t.default_timer()
-    solution = game.solve()
+    solution = NQueens(problem_size).solve()
     elapsed = t.default_timer() - start_time
 
-    game.print_board()
+    solution.print_board()
     print('TIME: %.6f' % elapsed)
