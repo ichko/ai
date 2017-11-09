@@ -138,18 +138,17 @@ class NQueens:
             for x in range(self.problem_size):
                 min_conf = min(self.board[x].conflicts)
                 conflict = self.board[x].conflicts[y]
-                is_min = '  ' if conflict != min_conf else '* '
                 if self.board[x].y_pos == y:
                     print(str(conflict) + '<', end='')
                 else:
                     print(str(conflict) + ' ', end='')
-                print(is_min, end='')
+                print('  ' if conflict != min_conf else '* ', end='')
             print()
 
     def print_board(self):
         for y in range(self.problem_size):
             for x in range(self.problem_size):
-                print('Q' if self.board[x].y_pos == y else '-', end=' ')
+                print('*' if self.board[x].y_pos == y else '_', end=' ')
             print()
 
 
