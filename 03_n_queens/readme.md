@@ -1,14 +1,14 @@
-# Домашно 3
-Разположете N царици на дъска NxN, така че да не се бият. 
+# Homework
+Place N queens no NxN board, so that they are not conflicting. 
 
-Използвайте алгоритъма MinConflicts за решение на задачата.
+Use MinConflicts to solve this problem.
 
 ---
 
-Изискване - да работи за `N=10 000` (при решаването на задачата със DFS, задачата не върви за N по-голямо от 100);
+It should work for `N=10 000` (when solved with DFS, no solution is found for N > 100);
 
-## Вход
-цяло число N - броя на цариците, които да се разположат. 
+## Input
+Integer N - the number of the queens. 
 
-## Изход
-изведете на стандартния изход игралната дъска като обозначите царица със `*` а празна клетка със `_`
+## Output
+Print to the std output the board marking the queens with  `*` and empty cells with `_`
