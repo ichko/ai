@@ -82,16 +82,6 @@ class NQueens:
         self.board = [Column(self.problem_size, x)
                       for x in range(self.problem_size)]
         self._set_initial_conflicts()
-        # self.board = []
-        # conflicting_cells = set()
-        # for x in range(self.problem_size):
-        #     col = Column(self.problem_size, x)
-        #     conflicting_cells.update(col.get_conflicting_cells())
-        #     for col_x, y in conflicting_cells:
-        #         if x == col_x:
-        #             col.update_conflict(y, 1)
-        #     col.relocate_queen()
-        #     self.board.append(col)
 
     def is_solved(self):
         return all(c.is_solved() for c in self.board)
