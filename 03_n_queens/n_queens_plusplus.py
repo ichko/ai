@@ -2,7 +2,7 @@ from collections import defaultdict
 from random import randrange as rand
 from random import sample as rand_sample
 from random import choice as rand_choice
-import timeit as t
+import timeit as time
 
 
 def solve(n):
@@ -30,6 +30,7 @@ def rand_max(arr, key=lambda x: x):
 def rand_min(arr, key=lambda x: x):
     return rand_max(arr, key=lambda x: -key(x))
 
+
 class NQueens:
 
     def __init__(self, n):
@@ -37,12 +38,11 @@ class NQueens:
         self._init_q()
 
     def solve(self):
-        max_iter = self.n * 2.5
+        max_iter = self.n * 2.71 # MAGIC
         current_iter = max_iter
         while True:
             current_iter -= 1
             if current_iter <= 0:
-                print('new gen')
                 current_iter = max_iter
                 self._init_q()
             if self.is_solved():
@@ -51,9 +51,10 @@ class NQueens:
                 q_max = rand_max(self.queens, key=lambda q: self.conflicts[q])
                 q_new = self._get_new_q(q_max)
 
-                if q_max == q_new:
-                    q_max = rand_sample(self.queens, 1)[0]
-                    q_new = self._get_new_q(q_max)
+                # Make something random if the queen does not move
+                # if q_max == q_new:
+                    # q_max = rand_sample(self.queens, 1)[0]
+                    # q_new = self._get_new_q(q_max)
 
                 self._move_q(q_max, q_new)
 
@@ -121,9 +122,9 @@ class NQueens:
 if __name__ == '__main__':
     n = int(input())
 
-    start_time = t.default_timer()
+    start_time = time.default_timer()
     solution = solve(n)
-    elapsed = t.default_timer() - start_time
+    elapsed = time.default_timer() - start_time
 
     solution.print_board()
     print('TIME: %.6f' % elapsed)
