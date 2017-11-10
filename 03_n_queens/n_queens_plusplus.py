@@ -1,7 +1,8 @@
 from collections import defaultdict
-from random import randrange as rand
-from random import sample as rand_sample
-from random import choice as rand_choice
+from random import \
+    randrange as rand, \
+    sample as rand_sample, \
+    choice as rand_choice
 import timeit as time
 
 
@@ -12,7 +13,7 @@ def is_solved(solution):
     return solution.is_solved()
 
 
-def rand_max(arr, key=lambda x: x):
+def max_els(arr, key=lambda x: x):
     max_els = set()
     max_val = -float('inf')
 
@@ -25,7 +26,10 @@ def rand_max(arr, key=lambda x: x):
         elif max_val == el_val:
             max_els.add(el)
 
-    return rand_sample(max_els, 1)[0]
+    return max_els
+
+def rand_max(arr, key=lambda x: x):
+    return rand_sample(max_els(arr, key), 1)[0]
 
 def rand_min(arr, key=lambda x: x):
     return rand_max(arr, key=lambda x: -key(x))
@@ -63,7 +67,7 @@ class NQueens:
 
     def _get_new_q(self, q_pos):
         x, _ = q_pos
-        return rand_min([(x, y) for y in range(self.n)],
+        return rand_min([(x, y) for y in range(self.n) if (x, y) != q_pos],
             key=lambda q: self.conflicts[q])
 
     def _init_q(self):
