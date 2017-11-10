@@ -1,5 +1,8 @@
 from collections import defaultdict
 from random import randrange as rand
+from random import sample as rand_sample
+from random import choice as rand_choice
+import timeit as t
 
 
 def solve(n):
@@ -9,6 +12,24 @@ def is_solved(solution):
     return solution.is_solved()
 
 
+def rand_max(arr, key=lambda x: x):
+    max_els = set()
+    max_val = -float('inf')
+
+    for el in arr:
+        el_val = key(el)
+        if max_val < el_val:
+            max_els = set()
+            max_els.add(el)
+            max_val = el_val
+        elif max_val == el_val:
+            max_els.add(el)
+
+    return rand_sample(max_els, 1)[0]
+
+def rand_min(arr, key=lambda x: x):
+    return rand_max(arr, key=lambda x: -key(x))
+
 class NQueens:
 
     def __init__(self, n):
@@ -16,17 +37,24 @@ class NQueens:
         self._init_q()
 
     def solve(self):
-        max_iter = self.n * 2.71 # MAGIC
+        max_iter = self.n * 2.5
         current_iter = max_iter
         while True:
+            current_iter -= 1
             if current_iter <= 0:
+                print('new gen')
                 current_iter = max_iter
                 self._init_q()
             if self.is_solved():
                 return self
             else:
-                q_max = max(self.queens, key=lambda q: self.conflicts[q])
+                q_max = rand_max(self.queens, key=lambda q: self.conflicts[q])
                 q_new = self._get_new_q(q_max)
+
+                if q_max == q_new:
+                    q_max = rand_sample(self.queens, 1)[0]
+                    q_new = self._get_new_q(q_max)
+
                 self._move_q(q_max, q_new)
 
     def is_solved(self):
@@ -34,8 +62,8 @@ class NQueens:
 
     def _get_new_q(self, q_pos):
         x, _ = q_pos
-        return min([(x, y) for y in range(self.n)],
-                   key=lambda q: self.conflicts[q])
+        return rand_min([(x, y) for y in range(self.n)],
+            key=lambda q: self.conflicts[q])
 
     def _init_q(self):
         self.conflicts = defaultdict(lambda: 0)
@@ -48,6 +76,9 @@ class NQueens:
                 self.conflicts[pos] += 1
 
     def _move_q(self, q_old, q_new):
+        self.queens.remove(q_old)
+        self.queens.add(q_new)
+
         for pos in self._get_q_conflicts(q_old):
             self.conflicts[pos] -= 1
         for pos in self._get_q_conflicts(q_new):
@@ -55,6 +86,8 @@ class NQueens:
 
     def _get_q_conflicts(self, q_pos):
         qx, qy = q_pos
+
+        # Horizontal and vertical lines
         result = set((x, qy) for x in range(self.n))
         result.update((qx, y) for y in range(self.n))
 
@@ -64,6 +97,7 @@ class NQueens:
         x_base, y_base = qx - min_coord, qy - min_coord
         x_inv, y_inv = qx + min_inv, qy - min_inv
 
+        # Diagonals
         result.update((x_base + i, y_base + i)
             for i in range(self.n - (max_coord - min_coord)))
         result.update((x_inv - i, y_inv + i)
@@ -73,10 +107,23 @@ class NQueens:
 
     def print_board(self):
         for y in range(self.n):
-            print(' '.join(['*' if (x, y) in self.queens else '.'
+            print(' '.join(['*' if (x, y) in self.queens else '_'
+                           for x in range(self.n)]))
+
+    def print_q_conflicts(self, q_pos):
+        conflicts = self._get_q_conflicts(q_pos)
+        for y in range(self.n):
+            print(' '.join(['*' if (x, y) == q_pos else '#'
+                                if (x, y) in conflicts else '_'
                            for x in range(self.n)]))
 
 
 if __name__ == '__main__':
     n = int(input())
-    solve(n).print_board()
+
+    start_time = t.default_timer()
+    solution = solve(n)
+    elapsed = t.default_timer() - start_time
+
+    solution.print_board()
+    print('TIME: %.6f' % elapsed)
