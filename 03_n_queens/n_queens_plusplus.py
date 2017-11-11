@@ -2,34 +2,27 @@ from collections import defaultdict
 from random import \
     randrange as rand, \
     sample as rand_sample, \
-    choice as rand_choice
+    choice as rand_choice, \
+    shuffle as rand_shuffle
 import timeit as time
 
 
-def solve(n):
-    return NQueens(n).solve()
-    
-def is_solved(solution):
-    return solution.is_solved()
-
-
 def max_els(arr, key=lambda x: x):
-    max_els = set()
+    max_els = []
     max_val = -float('inf')
 
     for el in arr:
         el_val = key(el)
         if max_val < el_val:
-            max_els = set()
-            max_els.add(el)
+            max_els = [el]
             max_val = el_val
         elif max_val == el_val:
-            max_els.add(el)
-
+            max_els.append(el)
+    rand_shuffle(max_els)
     return max_els
 
 def rand_max(arr, key=lambda x: x):
-    return rand_sample(max_els(arr, key), 1)[0]
+    return rand_choice(max_els(arr, key))
 
 def rand_min(arr, key=lambda x: x):
     return rand_max(arr, key=lambda x: -key(x))
@@ -39,96 +32,99 @@ class NQueens:
 
     def __init__(self, n):
         self.n = n
-        self._init_q()
+        self._init()
 
     def solve(self):
         max_iter = self.n * 2.71 # MAGIC
-        current_iter = max_iter
+        cur_iter = max_iter
         while True:
-            current_iter -= 1
-            if current_iter <= 0:
-                current_iter = max_iter
-                self._init_q()
-            if self.is_solved():
+            cur_iter -= 1
+            if cur_iter <= 0:
+                print('new gen')
+                cur_iter = max_iter
+                self._init()
+            if all(self.is_q_solved(q) for q in self.queens):
                 return self
             else:
-                q_max = rand_max(self.queens, key=lambda q: self.conflicts[q])
-                q_new = self._get_new_q(q_max)
+                max_q = self._get_max_q()
+                new_q = self._get_new_q(max_q)
+                if max_q != new_q:
+                    self._move_q(max_q, new_q)
 
-                # Make something random if the queen does not move
-                # if q_max == q_new:
-                    # q_max = rand_sample(self.queens, 1)[0]
-                    # q_new = self._get_new_q(q_max)
-
-                self._move_q(q_max, q_new)
-
-    def is_solved(self):
-        return all(self.conflicts[q] == 1 for q in self.queens)
-
-    def _get_new_q(self, q_pos):
-        x, _ = q_pos
-        return rand_min([(x, y) for y in range(self.n) if (x, y) != q_pos],
-            key=lambda q: self.conflicts[q])
-
-    def _init_q(self):
-        self.conflicts = defaultdict(lambda: 0)
-        self.queens = set()
-
-        for x in range(self.n):
-            q_pos = (x, rand(0, self.n))
-            self.queens.add(q_pos)
-            for pos in self._get_q_conflicts(q_pos):
-                self.conflicts[pos] += 1
+    def is_q_solved(self, q):
+        return self._calc_q_conf(q) <= 3
 
     def _move_q(self, q_old, q_new):
+        d_old, i_old, r_old = self._get_q_conflicts(q_old)
+        d_new, i_new, r_new = self._get_q_conflicts(q_new)
+
+        self.diag[d_old] -= 1
+        self.i_diag[i_old] -= 1
+        self.rows[r_old] -= 1
+
+        self.diag[d_new] += 1
+        self.i_diag[i_new] += 1
+        self.rows[r_new] += 1
+
         self.queens.remove(q_old)
         self.queens.add(q_new)
 
-        for pos in self._get_q_conflicts(q_old):
-            self.conflicts[pos] -= 1
-        for pos in self._get_q_conflicts(q_new):
-            self.conflicts[pos] += 1
+    def _calc_q_conf(self, q):
+        d, i, r = self._get_q_conflicts(q)
+        return self.diag[d] + self.i_diag[i] + self.rows[r]
+
+    def _get_max_q(self):
+        return rand_max(self.queens, key=lambda q: self._calc_q_conf(q))
+
+    def _get_new_q(self, q_pos):
+        x, _ = q_pos
+        return (x, rand_min(range(self.n),
+            key=lambda y: self._calc_q_conf((x, y))))
+
+    def _init(self):
+        self.diag = [0 for _ in range(2 * self.n - 1)]
+        self.i_diag = [0 for _ in range(2 * self.n - 1)]
+        self.rows = [0 for _ in range(2 * self.n - 1)]
+        self.queens = set()
+        for x in range(self.n):
+            _, y = self._get_new_q((x, 0))
+            q_pos = (x, y)
+            d, i, r = self._get_q_conflicts(q_pos)
+            self.diag[d] += 1
+            self.i_diag[i] += 1
+            self.rows[r] += 1
+            self.queens.add(q_pos)
 
     def _get_q_conflicts(self, q_pos):
-        qx, qy = q_pos
+        x, y = q_pos
+        min_xy = min(x, y)
+        min_ixy = min(self.n - x - 1, y)
 
-        # Horizontal and vertical lines
-        result = set((x, qy) for x in range(self.n))
-        result.update((qx, y) for y in range(self.n))
+        main_diag_id = (x - min_xy) + (self.n - 1) - (y - min_xy)
+        sec_diag_id = (x + min_ixy) + (y - min_ixy)
+        row_id = y
 
-        min_coord, max_coord = min(qx, qy), max(qx, qy)
-        min_inv, max_inv = min(self.n - qx - 1, qy), max(self.n - qx - 1, qy)
-
-        x_base, y_base = qx - min_coord, qy - min_coord
-        x_inv, y_inv = qx + min_inv, qy - min_inv
-
-        # Diagonals
-        result.update((x_base + i, y_base + i)
-            for i in range(self.n - (max_coord - min_coord)))
-        result.update((x_inv - i, y_inv + i)
-            for i in range(self.n - (max_inv - min_inv)))
-
-        return result
+        return main_diag_id, sec_diag_id, row_id
 
     def print_board(self):
         for y in range(self.n):
             print(' '.join(['*' if (x, y) in self.queens else '_'
                            for x in range(self.n)]))
 
-    def print_q_conflicts(self, q_pos):
-        conflicts = self._get_q_conflicts(q_pos)
-        for y in range(self.n):
-            print(' '.join(['*' if (x, y) == q_pos else '#'
-                                if (x, y) in conflicts else '_'
-                           for x in range(self.n)]))
 
 
 if __name__ == '__main__':
     n = int(input())
 
     start_time = time.default_timer()
-    solution = solve(n)
-    elapsed = time.default_timer() - start_time
-
-    solution.print_board()
-    print('TIME: %.6f' % elapsed)
+    print('init')
+    game = NQueens(n)
+    init_time = time.default_timer() - start_time
+    print('init  done')
+    start_time = time.default_timer()
+    game.solve()
+    solution_time = time.default_timer() - start_time
+    print('solution found')
+    # game.print_board()
+    print('init time: %.6f' % init_time)
+    print('solution time: %.6f' % solution_time)

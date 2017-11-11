@@ -1,4 +1,4 @@
-# Homework
+# Homework 03
 Place N queens no NxN board, so that they are not conflicting. 
 
 Use MinConflicts to solve this problem.
