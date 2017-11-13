@@ -4,7 +4,7 @@ from random import \
 
 
 def rand_sample(set_collection):
-    return sample(set_collection, 1)[0] 
+    return sample(set_collection, 1)[0]
 
 def prob_choice(set_collection, key=lambda x: x, revert=False):
     arr_sum = sum(map(key, set_collection))
@@ -57,21 +57,29 @@ class Knapsack:
         return self
 
     def get_solution(self):
-        return [self.items[id] for id, gene in enumerate(self.best_dna) if gene]
+        value, weight = self._get_dna_info(self.best_dna)
+        return [self.items[id] for id, gene
+                in enumerate(self.best_dna) if gene], value, weight
 
     def _crossover(self, l, r):
         mid_point = rand(0, self.n)
         return l[:mid_point] + r[mid_point:]
 
     def _get_strong_dna(self):
-        return prob_choice(self.population, lambda dna: self._fitness(dna))
+        return prob_choice(self.population,
+            lambda dna: self._fitness(dna))
 
     def _get_weak_dna(self):
-        return prob_choice(self.population, lambda dna: self._fitness(dna), revert=True)
+        return prob_choice(self.population,
+            lambda dna: self._fitness(dna), revert=True)
 
-    def _fitness(self, dna):
+    def _get_dna_info(self, dna):
         value = sum(self.items[id].value for id, gene in enumerate(dna) if gene)
         weight = sum(self.items[id].weight for id, gene in enumerate(dna) if gene)
+        return value, weight
+
+    def _fitness(self, dna):
+        value, weight = self._get_dna_info(dna)
         return 0 if weight > self.capacity else value
 
     def _random_dna(self):
@@ -80,11 +88,14 @@ class Knapsack:
 
 if __name__ == '__main__':
     all_items = [
-        Item('map', 90, 150), Item('compass', 130, 35), Item('water', 1530, 200)
+        Item('map', 90, 150), Item('compass', 130, 35), Item('water', 1530, 200),
+        Item('sandwich', 500, 160), Item('glucose', 150, 60), Item('tin', 680, 45),
+        Item('banana', 270, 60), Item('apple', 390, 40), Item('cheese', 230, 30),
     ]
     n = len(all_items)
 
     knapsack = Knapsack(all_items, 5000).run()
-    best_items = knapsack.get_solution()
+    best_items, value, weight = knapsack.get_solution()
 
     print(', '.join(map(lambda i: i.name, best_items)))
+    print('value %s, weight %s' % (value, weight))
