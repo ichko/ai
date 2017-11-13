@@ -33,6 +33,7 @@ class Knapsack:
         self.n = len(items)
 
         self.population_size = 50
+        self.mutation_rate = 0.01
         self.population = set(self._random_dna()
                               for _ in range(self.population_size))
 
@@ -46,6 +47,7 @@ class Knapsack:
             left_parent = self._get_strong_dna()
             right_parent = self._get_strong_dna()
             strong_dna = self._crossover(left_parent, right_parent)
+            strong_dna = self._mutate(strong_dna)
             weak_dna = self._get_weak_dna()
 
             self.population.remove(weak_dna)
@@ -60,6 +62,10 @@ class Knapsack:
         value, weight = self._get_dna_info(self.best_dna)
         return [self.items[id] for id, gene
                 in enumerate(self.best_dna) if gene], value, weight
+
+    def _mutate(self, dna):
+        r = rand(0, 100) / 100
+        return tuple(not gene if r < self.mutation_rate else gene for gene in dna)
 
     def _crossover(self, l, r):
         mid_point = rand(0, self.n)
@@ -93,9 +99,12 @@ if __name__ == '__main__':
         Item('banana', 270, 60), Item('apple', 390, 40), Item('cheese', 230, 30),
     ]
     n = len(all_items)
+    combined_value = sum(item.value for item in all_items)
+    combined_weight = sum(item.weight for item in all_items)
 
     knapsack = Knapsack(all_items, 5000).run()
     best_items, value, weight = knapsack.get_solution()
 
     print(', '.join(map(lambda i: i.name, best_items)))
     print('value %s, weight %s' % (value, weight))
+    print('value of all %s, weight of all %s' % (combined_value, combined_weight))
