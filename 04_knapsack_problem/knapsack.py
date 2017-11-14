@@ -1,5 +1,6 @@
 from random import \
     randrange as rand, \
+    choice as rand_choice, \
     sample
 
 
@@ -29,11 +30,11 @@ class Knapsack:
     def __init__(self, items, capacity):
         self.items = items
         self.capacity = capacity
-        self.max_iter = 3000
+        self.max_iter = 500
         self.n = len(items)
 
-        self.population_size = 100
-        self.mutation_rate = 0.1
+        self.population_size = 50
+        self.mutation_rate = 0.05
         self.population = set(self._random_dna()
                               for _ in range(self.population_size))
 
@@ -55,6 +56,7 @@ class Knapsack:
 
             if self._fitness(self.best_dna) < self._fitness(strong_dna):
                 self.best_dna = strong_dna
+            print(self.best_dna)
 
         return self
 
@@ -89,7 +91,13 @@ class Knapsack:
         return 0 if weight > self.capacity else value
 
     def _random_dna(self):
-        return tuple(bool(rand(0, 2)) for _ in range(self.n))
+        dna = [True for _ in range(self.n)]
+        genes = set(range(self.n))
+        while self._fitness(dna) <= 0:
+            gene = rand_sample(genes)
+            genes.remove(gene)
+            dna[gene] = False
+        return tuple(dna)
 
 
 if __name__ == '__main__':
@@ -113,3 +121,5 @@ if __name__ == '__main__':
     print(', '.join(map(lambda i: i.name, best_items)))
     print('value %s, weight %s' % (value, weight))
     print('value of all %s, weight of all %s' % (combined_value, combined_weight))
+    print('value in p %s, weight in p %s' %
+        (round(value / combined_value * 100, 3), round(weight / combined_weight * 100, 3)))
