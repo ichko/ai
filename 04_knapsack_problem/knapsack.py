@@ -102,16 +102,31 @@ class Knapsack:
 
 if __name__ == '__main__':
     all_items = [
-        Item('map', 90, 150), Item('compass', 130, 35), Item('water', 1530, 200),
-        Item('sandwich', 500, 160), Item('glucose', 150, 60), Item('tin', 680, 45),
-        Item('banana', 270, 60), Item('apple', 390, 40), Item('cheese', 230, 30),
-        Item('beer', 520, 10), Item('suntan cream', 110, 70), Item('camera', 320, 30),
-        Item('T-shirt', 240, 15), Item('trousers', 480, 10), Item('umbrella', 730, 40),
-        Item('waterproof trousers', 420, 70), Item('waterproof overclothes', 430, 75), Item('note-case', 220, 80),
-        Item('sunglasses', 70, 20), Item('towel', 180, 12), Item('socks', 40, 50),
-        Item('book', 300, 10), Item('notebook', 900, 1), Item('tent', 2000, 150)
+        Item('map', 90, 150),
+        Item('compass', 130, 35),
+        Item('water', 1530, 200),
+        Item('sandwich', 500, 160),
+        Item('glucose', 150, 60),
+        Item('tin', 680, 45),
+        Item('banana', 270, 60),
+        Item('apple', 390, 40),
+        Item('cheese', 230, 30),
+        Item('beer', 520, 10),
+        Item('suntan cream', 110, 70),
+        Item('camera', 320, 30),
+        Item('T-shirt', 240, 15),
+        Item('trousers', 480, 10),
+        Item('umbrella', 730, 40),
+        Item('waterproof trousers', 420, 70),
+        Item('waterproof overclothes', 430, 75),
+        Item('note-case', 220, 80),
+        Item('sunglasses', 70, 20),
+        Item('towel', 180, 12),
+        Item('socks', 40, 50),
+        Item('book', 300, 10),
+        Item('notebook', 900, 1),
+        Item('tent', 2000, 150)
     ]
-    n = len(all_items)
     combined_value = sum(item.value for item in all_items)
     combined_weight = sum(item.weight for item in all_items)
 
@@ -120,6 +135,8 @@ if __name__ == '__main__':
 
     print(', '.join(map(lambda i: i.name, best_items)))
     print('value %s, weight %s' % (value, weight))
-    print('value of all %s, weight of all %s' % (combined_value, combined_weight))
+
+    print('value of all %s, weight of all %s' %
+        (combined_value, combined_weight))
     print('value in p %s, weight in p %s' %
         (round(value / combined_value * 100, 3), round(weight / combined_weight * 100, 3)))
