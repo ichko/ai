@@ -2,6 +2,7 @@ from random import \
     randrange as rand, \
     choice as rand_choice, \
     sample
+from math import sqrt
 
 
 def rand_sample(set_collection):
@@ -18,6 +19,26 @@ def prob_choice(set_collection, key=lambda x: x, revert=False):
         cur_sum += el_key if not revert else arr_sum - el_key
     return rand_sample(set_collection)
 
+def max_els(arr, key=lambda x: x):
+    max_els = []
+    max_val = -float('inf')
+
+    for el in arr:
+        el_val = key(el)
+        if max_val < el_val:
+            max_els = [el]
+            max_val = el_val
+        elif max_val == el_val:
+            max_els.append(el)
+    # rand_shuffle(max_els)
+    return max_els
+
+def rand_max(arr, key=lambda x: x):
+    return rand_choice(max_els(arr, key))
+
+def rand_min(arr, key=lambda x: x):
+    return rand_max(arr, key=lambda x: -key(x))
+
 
 class Item:
     def __init__(self, name, weight, value):
@@ -30,7 +51,7 @@ class Knapsack:
     def __init__(self, items, capacity):
         self.items = items
         self.capacity = capacity
-        self.max_iter = 500
+        self.max_iter = 150
         self.n = len(items)
 
         self.population_size = 50
@@ -44,22 +65,27 @@ class Knapsack:
         cur_iter = self.max_iter
         while cur_iter > 0:
             cur_iter -= 1
+            strong_dna = set()
+            weak_dna = set()
 
-            left_parent = self._get_strong_dna()
-            self.population.remove(left_parent)
-            right_parent = self._get_strong_dna()
-            self.population.add(left_parent)
+            for _ in range(1):
+                left_parent = self._get_strong_dna()
+                right_parent = self._get_strong_dna()
 
-            strong_dna = self._crossover(left_parent, right_parent)
-            strong_dna = self._mutate(strong_dna)
-            weak_dna = self._get_weak_dna()
+                strong_dna.add(
+                    self._mutate(self._crossover(left_parent, right_parent))
+                )
+                weak_dna.add(self._get_weak_dna())
 
-            self.population.remove(weak_dna)
-            self.population.add(strong_dna)
+            for dna in weak_dna:
+                self.population.discard(dna)
+            for dna in strong_dna:
+                self.population.add(dna)
 
-            if self._fitness(self.best_dna) < self._fitness(strong_dna):
-                self.best_dna = strong_dna
-            print(self.best_dna)
+            strongest_dna = max(strong_dna, key=self._fitness)
+            if self._fitness(self.best_dna) < self._fitness(strongest_dna):
+                print(strongest_dna)
+                self.best_dna = strongest_dna
 
         return self
 
@@ -70,28 +96,43 @@ class Knapsack:
 
     def _mutate(self, dna):
         r = rand(0, 100) / 100
-        return tuple(not gene if r < self.mutation_rate else gene for gene in dna)
+        dna = [not gene if r < self.mutation_rate else gene for gene in dna]
+        while self._fitness(dna) <= 0:
+            r_gene = rand(0, self.n)
+            dna[r_gene] = False
+        return tuple(dna)
 
     def _crossover(self, l, r):
-        mid_point = rand(0, self.n)
-        return l[:mid_point] + r[mid_point:]
+        dna = [False for _ in range(self.n)]
+        for gene_id in range(self.n):
+            parent_rand = rand(0, 2)
+            gene_val = (l, r)[parent_rand][gene_id]
+            if gene_val:
+                dna[gene_id] = gene_val
+                _, weight = self._get_dna_info(dna)
+                if weight > self.capacity:
+                    dna[gene_id] = False
+                    break
+
+        return dna
 
     def _get_strong_dna(self):
         return prob_choice(self.population,
-            lambda dna: self._fitness(dna))
+            key=lambda dna: self._fitness(dna))
 
     def _get_weak_dna(self):
         return prob_choice(self.population,
-            lambda dna: self._fitness(dna), revert=True)
+            key=lambda dna: self._fitness(dna), revert=True)
 
     def _get_dna_info(self, dna):
+        a = 5
         value = sum(self.items[id].value for id, gene in enumerate(dna) if gene)
         weight = sum(self.items[id].weight for id, gene in enumerate(dna) if gene)
         return value, weight
 
     def _fitness(self, dna):
         value, weight = self._get_dna_info(dna)
-        return 0 if weight > self.capacity else value
+        return 0 if weight > self.capacity else max(int(value), 0)
 
     def _random_dna(self):
         dna = [True for _ in range(self.n)]
@@ -140,6 +181,6 @@ if __name__ == '__main__':
     print('value %s, weight %s' % (value, weight))
 
     print('value of all %s, weight of all %s' %
-        (combined_value, combined_weight))
+        (combined_value, 5000))
     print('value in p %s, weight in p %s' %
-        (round(value / combined_value * 100, 3), round(weight / combined_weight * 100, 3)))
+        (round(value / combined_value * 100, 3), round(weight / 5000 * 100, 3)))
