@@ -46,7 +46,10 @@ class Knapsack:
             cur_iter -= 1
 
             left_parent = self._get_strong_dna()
+            self.population.remove(left_parent)
             right_parent = self._get_strong_dna()
+            self.population.add(left_parent)
+
             strong_dna = self._crossover(left_parent, right_parent)
             strong_dna = self._mutate(strong_dna)
             weak_dna = self._get_weak_dna()
