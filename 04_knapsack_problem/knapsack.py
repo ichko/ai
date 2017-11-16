@@ -51,11 +51,11 @@ class Knapsack:
     def __init__(self, items, capacity):
         self.items = items
         self.capacity = capacity
-        self.max_iter = 150
+        self.max_iter = 40
         self.n = len(items)
 
         self.population_size = 50
-        self.mutation_rate = 0.05
+        self.mutation_rate = 0.5
         self.population = set(self._random_dna()
                               for _ in range(self.population_size))
 
@@ -83,8 +83,8 @@ class Knapsack:
                 self.population.add(dna)
 
             strongest_dna = max(strong_dna, key=self._fitness)
+            print(self._fitness(self._get_weak_dna()), self._fitness(self._get_strong_dna()))
             if self._fitness(self.best_dna) < self._fitness(strongest_dna):
-                print(strongest_dna)
                 self.best_dna = strongest_dna
 
         return self
@@ -117,12 +117,12 @@ class Knapsack:
         return dna
 
     def _get_strong_dna(self):
-        return prob_choice(self.population,
+        return max(self.population,
             key=lambda dna: self._fitness(dna))
 
     def _get_weak_dna(self):
-        return prob_choice(self.population,
-            key=lambda dna: self._fitness(dna), revert=True)
+        return min(self.population,
+            key=lambda dna: self._fitness(dna))
 
     def _get_dna_info(self, dna):
         a = 5
